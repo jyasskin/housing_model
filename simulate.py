@@ -1,4 +1,5 @@
 import model
+import re
 
 
 def new_simulation():
@@ -55,5 +56,43 @@ def user_input():
                                    % (houses[score], score))
 
 
+def run(args):
+    mod = model.HousingModel(args.renters, args.houses)
+    mod.generate_csv(args.output)
+
+
+COMMA = re.compile('\s*,\s*')
+def ScoreList(value_str):
+    """Parses 5 comma-separated values into a scores dictionary."""
+    values = COMMA.split(value_str)
+    if len(values) != 5:
+        raise ValueError
+    return dict((score + 1, count)
+                for (score, count) in enumerate(map(int, values)))
+
+
 if __name__ == '__main__':
-    user_input()
+    import argparse
+
+    parser = argparse.ArgumentParser(description='Simulate SF housing.')
+    parser.add_argument('--old-sim', action='store_true',
+                        help=old_simulation.__doc__)
+    parser.add_argument('--new-sim', action='store_true',
+                        help=new_simulation.__doc__)
+    parser.add_argument('--renters', type=ScoreList,
+                        help='A list of 5 numbers, representing the number of renders with a minimum housing score of 1, 2, 3, 4, and 5, respectively.')
+    parser.add_argument('--houses', type=ScoreList,
+                        help='A list of 5 numbers, representing the number of houses with a score of 1, 2, 3, 4, and 5, respectively.')
+    parser.add_argument('-o', '--output',
+                        type=argparse.FileType('w'), default='output.csv',
+                        help='Target file for the csv')
+    args = parser.parse_args()
+
+    if args.old_sim:
+        old_simulation()
+    elif args.new_sim:
+        new_simulation()
+    elif args.renters and args.houses:
+        run(args)
+    else:
+        user_input()

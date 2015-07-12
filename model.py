@@ -38,8 +38,9 @@ class HousingModel(object):
             else:
                 print dic
 
-    def generate_csv(self, filename):
-        f = open(filename, 'w')
+    def generate_csv(self, f):
+        if not isinstance(f, file):
+            f = open(f, 'w')
         fieldnames = ['min_score', 'max_rent', 'rent', 'apt_score']
         dw = csv.DictWriter(f, fieldnames)
         dw.writeheader()
